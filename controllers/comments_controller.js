@@ -25,3 +25,32 @@ module.exports.create = (request, response) => {
       console.log("Error in finding the post for creating the comment");
     });
 };
+
+module.exports.destroy = (request, response) => {
+  Comment.findById(request.params.id)
+    .then((comment) => {
+      if (comment.user == request.user.id) {
+        let postId = comment.post;
+        Comment.deleteOne({ _id: request.params.id })
+          .then(() => {
+            console.log("Successfully deleted the comment");
+          })
+          .catch((error) => {
+            console.log("Error in deleting the comment");
+          });
+        Post.findByIdAndUpdate(postId, {
+          $pull: { comments: request.params.id },
+        })
+          .then((post) => {
+            console.log("Successfully deleted the comment from post");
+          })
+          .catch((error) => {
+            console.log("Error in deleting the comment from post");
+          });
+      }
+      response.redirect("back");
+    })
+    .catch((error) => {
+      console.log("Error in finding the comment");
+    });
+};

@@ -1,4 +1,5 @@
 const Post = require("../models/post");
+const User = require("../models/user");
 module.exports.home = (request, response) => {
   // console.log(request.cookies);
   /*
@@ -25,10 +26,17 @@ module.exports.home = (request, response) => {
       },
     })
     .then((posts) => {
-      return response.render("home", {
-        title: "Codeial | Home",
-        posts: posts,
-      });
+      User.find({})
+        .then((users) => {
+          return response.render("home", {
+            title: "Codeial | Home",
+            posts: posts,
+            all_users: users,
+          });
+        })
+        .catch((error) => {
+          console.log("Error in finding the users");
+        });
     })
     .catch((error) => {
       console.log("Error in finding the posts");

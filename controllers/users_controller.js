@@ -1,9 +1,16 @@
 const User = require("../models/user");
 
 module.exports.profile = (request, response) => {
-  return response.render("./user_profile", {
-    title: "User Profile",
-  });
+  User.findById(request.params.id)
+    .then((user) => {
+      return response.render("./user_profile", {
+        title: "User Profile",
+        profile_user: user,
+      });
+    })
+    .catch((error) => {
+      console.log("Error in finding the profile");
+    });
 };
 
 module.exports.signUp = (request, response) => {
@@ -62,4 +69,18 @@ module.exports.destroySession = function (request, response, next) {
     }
     return response.redirect("/");
   });
+};
+
+module.exports.update = (request, response) => {
+  if (request.user.id == request.params.id) {
+    User.findByIdAndUpdate(request.params.id, request.body)
+      .then((user) => {
+        response.redirect("back");
+      })
+      .catch(() => {
+        console.log("Error in updating the details of the user!");
+      });
+  } else {
+    return response.status(401).send("Unauthorised");
+  }
 };
