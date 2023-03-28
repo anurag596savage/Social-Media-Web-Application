@@ -2,18 +2,40 @@ var mongoose = require("mongoose");
 const Post = require("../models/post");
 const Comment = require("../models/comment");
 
-module.exports.create = (request, response) => {
+module.exports.create = async (request, response) => {
+  /*
   Post.create({
     content: request.body.content,
     user: request.user._id,
   })
     .then((post) => {
+      request.flash("success", "Post created successfully!");
       return response.redirect("back");
     })
     .catch((error) => {
-      console.log("Error in creating the post");
-      return;
+      request.flash("error", "Post could not be created!");
+      return response.redirect("back");
     });
+    */
+  try {
+    let post = await Post.create({
+      content: request.body.content,
+      user: request.user._id,
+    });
+    if (request.xhr) {
+      return response.status(200).json({
+        data: {
+          post: post,
+        },
+        message: "Post created!",
+      });
+    }
+    request.flash("success", "Post created successfully!");
+    return response.redirect("back");
+  } catch (error) {
+    request.flash("error", "Post could not be created!");
+    return response.redirect("back");
+  }
 };
 
 module.exports.destroy = (request, response) => {
@@ -26,20 +48,29 @@ module.exports.destroy = (request, response) => {
             console.log("Successfully deleted the post!");
           })
           .catch((error) => {
-            console.log("Error in deleting the post");
+            request.flash("error", "Could not delete the post!");
+            return response.redirect("back");
           });
         Comment.deleteMany({ post: request.params.id })
           .then(() => {
-            console.log("Successfully deleted the comments for the post!");
-            return response.redirect("back");
+            console.log("Comments related to post successfully deleted!");
           })
           .catch((error) => {
-            console.log("Error in deleting the comments related to a post");
+            console.log("Comments related to post could not deleted!");
           });
+        if (request.xhr) {
+          return response.status(200).json({
+            data: {
+              post_id: request.params.id,
+            },
+            message: "Post deleted!",
+          });
+        }
       }
       return response.redirect("back");
     })
     .catch((error) => {
-      console.log("Error in finding the post");
+      console.log("Could not find the post!");
+      return response.redirect("back");
     });
 };

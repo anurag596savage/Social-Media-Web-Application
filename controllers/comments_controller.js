@@ -14,6 +14,15 @@ module.exports.create = (request, response) => {
             post.comments.push(comment);
             post.save();
 
+            if (request.xhr) {
+              return response.status(200).json({
+                data: {
+                  comment: comment,
+                },
+                mesage: "Comment created!",
+              });
+            }
+
             return response.redirect("/");
           })
           .catch((error) => {
@@ -47,6 +56,14 @@ module.exports.destroy = (request, response) => {
           .catch((error) => {
             console.log("Error in deleting the comment from post");
           });
+        if (request.xhr) {
+          return response.status(200).json({
+            data: {
+              comment_id: request.params.id,
+            },
+            message: "Comment deleted!",
+          });
+        }
       }
       response.redirect("back");
     })
