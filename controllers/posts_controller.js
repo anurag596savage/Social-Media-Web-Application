@@ -1,6 +1,7 @@
 var mongoose = require("mongoose");
 const Post = require("../models/post");
 const Comment = require("../models/comment");
+const User = require("../models/user");
 
 module.exports.create = async (request, response) => {
   /*
@@ -22,10 +23,13 @@ module.exports.create = async (request, response) => {
       content: request.body.content,
       user: request.user._id,
     });
+    let signedInUser = await User.findById(request.user._id);
+    let userName = signedInUser.name;
     if (request.xhr) {
       return response.status(200).json({
         data: {
           post: post,
+          name: userName,
         },
         message: "Post created!",
       });

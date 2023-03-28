@@ -10,7 +10,7 @@
         data: newPostForm.serialize(), // converts the post into JSON
         success: (data) => {
           console.log(data);
-          let newPost = newPostDOM(data.data.post);
+          let newPost = newPostDOM(data.data.post, data.data.name);
           $(".posts-list-container>ul").prepend(newPost);
           createComment(data.data.post._id);
           deletePost($(" .delete-post-button", newPost));
@@ -30,7 +30,7 @@
   };
 
   // method to create the post in DOM
-  let newPostDOM = (post) => {
+  let newPostDOM = (post, name) => {
     return $(`<li class="post-${post._id}">
   <small>
     <a class="delete-post-button" href="/posts/destroy/${post._id}">X</a>
@@ -38,7 +38,7 @@
   <p>
      ${post.content}
     <br />
-    ${post.user.name}
+    ${name}
   </p>
   <div class="post-comments">
     <form action="/comments/create" class="post-${post._id}-comments-form" method="POST">
@@ -91,7 +91,7 @@
         data: commentForm.serialize(),
         success: (data) => {
           console.log(data);
-          let newComment = newCommentDOM(data.data.comment);
+          let newComment = newCommentDOM(data.data.comment, data.data.name);
           $(`.post-comment-${data.data.comment.post}`).prepend(newComment);
           deleteComment($(" .delete-comment-button", newComment));
           new Noty({
@@ -109,7 +109,7 @@
     });
   };
 
-  let newCommentDOM = (comment) => {
+  let newCommentDOM = (comment, name) => {
     return $(`<li class = "comment-${comment._id}">
   <p>
     <small>
@@ -117,7 +117,7 @@
     </small>
     ${comment.content}
     <br />
-    ${comment.user.name}
+    ${name}
   </p>
 </li>`);
   };
@@ -156,7 +156,6 @@
   };
 
   let convertCommentsToAjax = (postId) => {
-    console.log(postId);
     let commentsList = $(`.post-comment-${postId}>li`);
     for (let current of commentsList) {
       deleteComment($(" .delete-comment-button", current));

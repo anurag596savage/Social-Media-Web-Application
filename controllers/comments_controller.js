@@ -1,5 +1,6 @@
 const Comment = require("../models/comment");
 const Post = require("../models/post");
+const User = require("../models/user");
 
 module.exports.create = (request, response) => {
   Post.findById(request.body.post)
@@ -13,16 +14,30 @@ module.exports.create = (request, response) => {
           .then((comment) => {
             post.comments.push(comment);
             post.save();
-
+            User.findById(request.user._id)
+              .then((signedInUser) => {
+                if (request.xhr) {
+                  return response.status(200).json({
+                    data: {
+                      comment: comment,
+                      name: signedInUser.name,
+                    },
+                    mesage: "Comment created!",
+                  });
+                }
+              })
+              .catch((error) => {
+                console.log("Error in finding the signed in user!");
+              });
             if (request.xhr) {
               return response.status(200).json({
                 data: {
                   comment: comment,
+                  name: signedInUser.name,
                 },
                 mesage: "Comment created!",
               });
             }
-
             return response.redirect("/");
           })
           .catch((error) => {
@@ -35,6 +50,32 @@ module.exports.create = (request, response) => {
     });
 };
 
+/*
+module.exports.create = async (request, response) => {
+  try {
+    let post = await Post.findById(request.body.post);
+    let comment = await Comment.create({
+      content: request.body.content,
+      post: request.body.post,
+      user: request.user._id,
+    });
+    post.comments.push(comment);
+    post.save();
+    let signedInUser = User.findById(request.user._id);
+    if (request.xhr) {
+      return response.status(200).json({
+        data: {
+          comment: comment,
+          name: signedInUser.name,
+        },
+        mesage: "Comment created!",
+      });
+    }
+  } catch (error) {
+    return response.redirect("/");
+  }
+};
+*/
 module.exports.destroy = (request, response) => {
   Comment.findById(request.params.id)
     .then((comment) => {
