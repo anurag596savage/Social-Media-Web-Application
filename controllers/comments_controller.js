@@ -1,56 +1,11 @@
 const Comment = require("../models/comment");
 const Post = require("../models/post");
 const User = require("../models/user");
+const Like = require("../models/like");
+const commentsMailer = require("../mailers/comments_mailer");
+const queue = require("../config/kue");
+const commentEmailWorker = require("../workers/comment_email_worker");
 
-module.exports.create = (request, response) => {
-  Post.findById(request.body.post)
-    .then((post) => {
-      if (post) {
-        Comment.create({
-          content: request.body.content,
-          post: request.body.post,
-          user: request.user._id,
-        })
-          .then((comment) => {
-            post.comments.push(comment);
-            post.save();
-            User.findById(request.user._id)
-              .then((signedInUser) => {
-                if (request.xhr) {
-                  return response.status(200).json({
-                    data: {
-                      comment: comment,
-                      name: signedInUser.name,
-                    },
-                    mesage: "Comment created!",
-                  });
-                }
-              })
-              .catch((error) => {
-                console.log("Error in finding the signed in user!");
-              });
-            if (request.xhr) {
-              return response.status(200).json({
-                data: {
-                  comment: comment,
-                  name: signedInUser.name,
-                },
-                mesage: "Comment created!",
-              });
-            }
-            return response.redirect("/");
-          })
-          .catch((error) => {
-            console.log("Error in creating the comment for the post");
-          });
-      }
-    })
-    .catch((error) => {
-      console.log("Error in finding the post for creating the comment");
-    });
-};
-
-/*
 module.exports.create = async (request, response) => {
   try {
     let post = await Post.findById(request.body.post);
@@ -61,22 +16,33 @@ module.exports.create = async (request, response) => {
     });
     post.comments.push(comment);
     post.save();
-    let signedInUser = User.findById(request.user._id);
+    comment = await comment.populate("user");
+    // commentsMailer.newComment(comment);
+    let job = queue.create("emails", comment).save((error) => {
+      if (error) {
+        console.log("Error in creating queue: ", error);
+        return;
+      }
+      console.log("Job enqueued: ", job.id);
+    });
     if (request.xhr) {
       return response.status(200).json({
         data: {
           comment: comment,
-          name: signedInUser.name,
+          name: comment.user.name,
         },
         mesage: "Comment created!",
       });
     }
   } catch (error) {
-    return response.redirect("/");
+    console.log("Error in creating comment: ", error);
+    request.flash("error", "Comment could not be created!");
+    return response.redirect("back");
   }
 };
-*/
-module.exports.destroy = (request, response) => {
+
+module.exports.destroy = async (request, response) => {
+  /*
   Comment.findById(request.params.id)
     .then((comment) => {
       if (comment.user == request.user.id) {
@@ -111,4 +77,29 @@ module.exports.destroy = (request, response) => {
     .catch((error) => {
       console.log("Error in finding the comment");
     });
+    */
+  try {
+    let comment = await Comment.findById(request.params.id);
+    if (comment.user == request.user.id) {
+      let postId = comment.post;
+      await Comment.deleteOne({ _id: request.params.id });
+      let post = await Post.findByIdAndUpdate(postId, {
+        $pull: { comments: request.params.id },
+      });
+      await Like.deleteMany({ likable: request.params.id, onModel: "Comment" });
+      if (request.xhr) {
+        return response.status(200).json({
+          data: {
+            comment_id: request.params.id,
+          },
+          message: "Comment deleted!",
+        });
+      }
+      return response.redirect("back");
+    }
+  } catch (error) {
+    console.log("Error in deleting the comment: ", error);
+    request.flash("error", "Could not delete the comment!");
+    return response.redirect("back");
+  }
 };

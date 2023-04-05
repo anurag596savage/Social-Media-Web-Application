@@ -10,4 +10,16 @@
     <br />
     <%= comment.user.name %>
   </p>
+  <% if(locals.user) {%>
+  <p>
+    <a
+      class="toggle-button-comment"
+      href="/likes/toggle/?id=<%=comment._id%>&type=Comment"
+      count-likes="<%=comment.likes.length%>">
+      <%=comment.likes.length%> Like
+    </a>
+  </p>
+  <%} else {%>
+  <p><%=comment.likes.length%> Like</p>
+  <%}%>
 </li>

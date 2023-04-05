@@ -2,6 +2,7 @@ var mongoose = require("mongoose");
 const Post = require("../models/post");
 const Comment = require("../models/comment");
 const User = require("../models/user");
+const Like = require("../models/like");
 
 module.exports.create = async (request, response) => {
   /*
@@ -34,15 +35,16 @@ module.exports.create = async (request, response) => {
         message: "Post created!",
       });
     }
-    request.flash("success", "Post created successfully!");
     return response.redirect("back");
   } catch (error) {
+    console.log("Error in creating post: ", error);
     request.flash("error", "Post could not be created!");
     return response.redirect("back");
   }
 };
 
-module.exports.destroy = (request, response) => {
+module.exports.destroy = async (request, response) => {
+  /*
   Post.findById(request.params.id)
     .then((post) => {
       // .id means converting the object id into string
@@ -77,4 +79,27 @@ module.exports.destroy = (request, response) => {
       console.log("Could not find the post!");
       return response.redirect("back");
     });
+    */
+  try {
+    let post = await Post.findById(request.params.id);
+    if (post.user == request.user.id) {
+      await Like.deleteMany({ likable: request.params.id, onModel: "Post" });
+      await Like.deleteMany({ _id: { $in: post.comments } });
+      await Post.deleteOne({ _id: request.params.id });
+      await Comment.deleteMany({ post: request.params.id });
+      if (request.xhr) {
+        return response.status(200).json({
+          data: {
+            post_id: request.params.id,
+          },
+          message: "Post deleted!",
+        });
+      }
+      response.redirect("back");
+    }
+  } catch (error) {
+    console.log("Error in deleting the post: ", error);
+    request.flash("error", "Could not delete the post!");
+    return response.redirect("back");
+  }
 };

@@ -1,5 +1,7 @@
 const Post = require("../models/post");
 const User = require("../models/user");
+const Friendship = require("../models/friendship");
+
 module.exports.home = async (request, response) => {
   // console.log(request.cookies);
   /*
@@ -51,14 +53,27 @@ module.exports.home = async (request, response) => {
       .populate({
         path: "comments",
         populate: {
-          path: "user",
+          path: "user likes",
+        },
+      })
+      .populate("likes");
+
+    let users = await User.find({});
+    let current_user;
+    if (request.isAuthenticated()) {
+      current_user = await User.findById(request.user._id).populate({
+        path: "friends",
+        populate: {
+          path: "from_user to_user",
         },
       });
-    let users = await User.find({});
+      console.log(current_user);
+    }
     return response.render("home", {
       title: "Codeial | Home",
       posts: posts,
       all_users: users,
+      current_user: current_user,
     });
   } catch (error) {
     console.log("Error : ", error);

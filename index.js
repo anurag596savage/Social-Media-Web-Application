@@ -6,6 +6,8 @@ const session = require("express-session"); // used for session cookie
 const passport = require("passport");
 const router = require("./routes");
 const passportLocal = require("./config/passport-local-strategy");
+const passportJWT = require("./config/passport-jwt-strategy");
+const passportGoogle = require("./config/passport-google-oauth2-strategy");
 const MongoStore = require("connect-mongo")(session);
 const sassMiddleware = require("node-sass-middleware");
 const flash = require("connect-flash");
@@ -35,6 +37,7 @@ app.use(expressLayout);
 app.set("layout extractStyles", true);
 app.set("layout extractScripts", true);
 
+app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use(express.static("./assets"));
 
 app.set("view engine", "ejs");
@@ -46,7 +49,7 @@ app.use(
     name: "Codeial",
     // TODO - Change the secret before deployment in production mode
     secret: "something",
-    saveUnitialized: false,
+    saveUninitialized: false,
     resave: false,
     cookie: {
       maxAge: 1000 * 60 * 100,

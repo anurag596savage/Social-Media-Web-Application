@@ -9,6 +9,18 @@
     <br />
     <%= post.user.name %>
   </p>
+  <% if(locals.user) {%>
+  <p>
+    <a
+      class="toggle-button-post"
+      href="/likes/toggle/?id=<%=post._id%>&type=Post"
+      count-likes="<%=post.likes.length%>">
+      <%=post.likes.length%> Like
+    </a>
+  </p>
+  <%} else {%>
+  <p><%=post.likes.length%> Like</p>
+  <%}%>
   <div class="post-comments">
     <% if(locals.user) { %>
     <form
@@ -22,7 +34,7 @@
       <input type="hidden" name="post" value="<%= post._id %>" />
       <input type="submit" value="Add Comment" />
     </form>
-    <% } %>
+    <% }%>
     <div class="post-comments-list">
       <ul class="post-comment-<%=post._id%>">
         <% for(comment of post.comments) { %> <%- include("_comment.ejs") %> <%

@@ -14,6 +14,7 @@
           $(".posts-list-container>ul").prepend(newPost);
           createComment(data.data.post._id);
           deletePost($(" .delete-post-button", newPost));
+          toogleLike($(" .toggle-button-post", newPost));
           new Noty({
             theme: "relax",
             text: "Post created successfully!",
@@ -39,6 +40,14 @@
      ${post.content}
     <br />
     ${name}
+  </p>
+  <p>
+    <a
+      class="toggle-button-post"
+      href="/likes/toggle/?id=${post._id}&type=Post"
+      count-likes="0">
+      0 Like
+    </a>
   </p>
   <div class="post-comments">
     <form action="/comments/create" class="post-${post._id}-comments-form" method="POST">
@@ -94,6 +103,7 @@
           let newComment = newCommentDOM(data.data.comment, data.data.name);
           $(`.post-comment-${data.data.comment.post}`).prepend(newComment);
           deleteComment($(" .delete-comment-button", newComment));
+          toogleLike($(" .toggle-button-comment", newComment));
           new Noty({
             theme: "relax",
             text: "Comment created successfully!",
@@ -118,6 +128,14 @@
     ${comment.content}
     <br />
     ${name}
+  </p>
+  <p>
+    <a
+      class="toggle-button-comment"
+      href="/likes/toggle/?id=${comment._id}&type=Comment"
+      count-likes="0">
+      0 Like
+    </a>
   </p>
 </li>`);
   };
@@ -149,6 +167,7 @@
     let postsList = $(".posts-list-container>ul>li");
     for (let current of postsList) {
       deletePost($(" .delete-post-button", current));
+      toogleLike($(" .toggle-button-post", current));
       let postId = $(current).prop("class").split("-")[1];
       createComment(postId);
       convertCommentsToAjax(postId);
@@ -159,7 +178,32 @@
     let commentsList = $(`.post-comment-${postId}>li`);
     for (let current of commentsList) {
       deleteComment($(" .delete-comment-button", current));
+      toogleLike($(" .toggle-button-comment", current));
     }
+  };
+
+  let toogleLike = (link) => {
+    $(link).click((event) => {
+      event.preventDefault();
+      $.ajax({
+        type: "post",
+        url: $(link).prop("href"),
+        success: (data) => {
+          let countLikes = parseInt($(link).attr("count-likes"));
+          if (data.data.deleted == true) {
+            countLikes = countLikes - 1;
+          } else {
+            countLikes = countLikes + 1;
+          }
+          $(link).attr("count-likes", countLikes);
+          $(link).html(`${countLikes} Like`);
+          console.log(countLikes);
+        },
+        error: (error) => {
+          console.log("Error in completing the request: ", error.responseText);
+        },
+      });
+    });
   };
 
   createPost();

@@ -4,7 +4,7 @@
     <div class="two">
       <% if(locals.user){ %>
       <span>
-        <a href="/users/profile"> <%= user.name %> </a>
+        <a href="/users/profile/<%=user.id%>"> <%= user.name %> </a>
       </span>
       <span>
         <a href="/users/sign-out">Sign out</a>

@@ -20,15 +20,29 @@
       </ul>
     </div>
   </section>
-
-  <section class="user-friends">
-    <h4>Friends</h4>
-    <% for(u of all_users) { %>
-    <p>
-      <a href="/users/profile/<%=u.id%>"><%= u.name %></a>
-    </p>
-    <% } %>
-  </section>
+  <div class="users-container">
+    <section class="friends-list">
+      <h4>Friends</h4>
+      <% if(locals.user){ %> <% for(let i of current_user.friends) { %> <%
+      if(i.from_user.id==current_user.id){ %>
+      <p>
+        <a href="/users/profile/<%=i.to_user._id%>"><%=i.to_user.name%></a>
+      </p>
+      <% } else {%>
+      <p>
+        <a href="/users/profile/<%=i.from_user._id%>"><%=i.from_user.name%></a>
+      </p>
+      <% } %> <%}%> <%}%>
+    </section>
+    <section class="users-list">
+      <h4>Users</h4>
+      <% for(u of all_users) { %>
+      <p>
+        <a href="/users/profile/<%=u.id%>"><%= u.name %></a>
+      </p>
+      <% } %>
+    </section>
+  </div>
 </div>
 
 <script src="/js/home.js"></script>
