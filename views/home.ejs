@@ -44,5 +44,14 @@
     </section>
   </div>
 </div>
+<%- include("_chatbox") %>
 
 <script src="/js/home.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+<script src="/js/chat_engine.js"></script>
+<% if(locals.user) { %>
+<script>
+  new ChatEngine("chatbox-container", "<%=locals.user.email%>");
+</script>
+
+<% } %>

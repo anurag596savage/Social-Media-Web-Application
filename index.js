@@ -12,6 +12,8 @@ const MongoStore = require("connect-mongo")(session);
 const sassMiddleware = require("node-sass-middleware");
 const flash = require("connect-flash");
 const customMiddleware = require("./config/middleware");
+const env = require("./config/environment");
+const path = require("path");
 
 const port = 8000;
 
@@ -19,10 +21,21 @@ const db = require("./config/mongoose");
 
 const app = express();
 
+// setup the chat server to be used with server.io
+const chatServer = require("http").Server(app);
+const chatSocket = require("./config/chat_sockets").chatSockets(chatServer);
+chatServer.listen(3000, (error) => {
+  if (error) {
+    console.log("Error in connecting to chatServer: ", error);
+    return;
+  }
+  console.log("The chatServer is running on port : 3000");
+});
+
 app.use(
   sassMiddleware({
-    src: "./assets/scss",
-    dest: "./assets/css",
+    src: path.join(__dirname, env.asset_path, "scss"),
+    dest: path.join(__dirname, env.asset_path, "css"),
     debug: true,
     outputStyle: "extended",
     prefix: "/css",
@@ -38,7 +51,7 @@ app.set("layout extractStyles", true);
 app.set("layout extractScripts", true);
 
 app.use("/uploads", express.static(__dirname + "/uploads"));
-app.use(express.static("./assets"));
+app.use(express.static(env.asset_path));
 
 app.set("view engine", "ejs");
 app.set("views", "./views");
@@ -48,7 +61,7 @@ app.use(
   session({
     name: "Codeial",
     // TODO - Change the secret before deployment in production mode
-    secret: "something",
+    secret: env.session_cookie_key,
     saveUninitialized: false,
     resave: false,
     cookie: {

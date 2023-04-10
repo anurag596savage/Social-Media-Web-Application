@@ -1,0 +1,35 @@
+.chatbox-container {
+  background-color: whitesmoke;
+  height: 200px;
+  width: 200px;
+  position: fixed;
+  right: 0px;
+  bottom: 0px;
+  border: 1px solid grey;
+  overflow-y: scroll; }
+  .chatbox-container .message-list span {
+    display: block;
+    height: 30px;
+    width: 120px;
+    text-align: center;
+    padding-top: 5px;
+    margin-bottom: 35px; }
+  .chatbox-container .message-list .other-message {
+    background-color: orange;
+    margin-top: 30px;
+    margin-left: 10%; }
+  .chatbox-container .message-list .self-message {
+    background-color: cornflowerblue;
+    margin-top: 15px;
+    margin-left: 40%; }
+  .chatbox-container .send-message-container {
+    display: flex;
+    height: 30px;
+    position: fixed;
+    bottom: 0px; }
+    .chatbox-container .send-message-container .send-message-input {
+      width: 150px;
+      border: 2px solid royalblue; }
+    .chatbox-container .send-message-container .send-message-button {
+      color: white;
+      background-color: green; }
