@@ -1,4 +1,5 @@
 const express = require("express");
+const env = require("./config/environment");
 const expressLayout = require("express-ejs-layouts");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -12,8 +13,8 @@ const MongoStore = require("connect-mongo")(session);
 const sassMiddleware = require("node-sass-middleware");
 const flash = require("connect-flash");
 const customMiddleware = require("./config/middleware");
-const env = require("./config/environment");
 const path = require("path");
+const logger = require("morgan");
 
 const port = 8000;
 
@@ -32,15 +33,19 @@ chatServer.listen(3000, (error) => {
   console.log("The chatServer is running on port : 3000");
 });
 
-app.use(
-  sassMiddleware({
-    src: path.join(__dirname, env.asset_path, "scss"),
-    dest: path.join(__dirname, env.asset_path, "css"),
-    debug: true,
-    outputStyle: "extended",
-    prefix: "/css",
-  })
-);
+if (env.name == "development") {
+  console.log("In development mode!");
+  app.use(
+    sassMiddleware({
+      src: path.join(__dirname, env.asset_path, "/scss"),
+      dest: path.join(__dirname, env.asset_path, "/css"),
+      debug: true,
+      outputStyle: "extended",
+      prefix: "/css",
+    })
+  );
+}
+app.use(logger(env.morgan.mode, env.morgan.options));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -51,8 +56,7 @@ app.set("layout extractStyles", true);
 app.set("layout extractScripts", true);
 
 app.use("/uploads", express.static(__dirname + "/uploads"));
-app.use(express.static(env.asset_path));
-
+app.use(express.static(path.join(__dirname, env.assets_path)));
 app.set("view engine", "ejs");
 app.set("views", "./views");
 

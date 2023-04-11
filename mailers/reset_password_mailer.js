@@ -1,4 +1,5 @@
 const nodemailer = require("../config/nodemailer");
+const env = require("../config/environment");
 
 module.exports.resetPassword = (reset_password_token) => {
   console.log("Inside reset_password_mailer.js");
