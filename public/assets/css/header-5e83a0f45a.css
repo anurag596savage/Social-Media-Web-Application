@@ -1,0 +1,17 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: royalblue;
+  padding: 0px 10px;
+  height: 40px; }
+  .header .one {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold; }
+  .header .two {
+    display: flex;
+    gap: 1.5rem; }
+    .header .two a {
+      text-decoration: none;
+      color: white; }

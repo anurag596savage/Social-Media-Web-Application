@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/css/user_profile.css" />
+<link rel="stylesheet" href="<%=assetPath('css/user_profile.css')%>" />
 
 <img src="<%=user.avatar%>" alt="<%=user.name%>" width="100px" height="100px" />
 
@@ -33,5 +33,5 @@
     ><%=displayText%></a
   >
 </p>
-<script src="/js/profile.js"></script>
+<script src="<%=assetPath('js/profile.js')%>"></script>
 <% } %>

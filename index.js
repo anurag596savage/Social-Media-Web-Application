@@ -15,12 +15,13 @@ const flash = require("connect-flash");
 const customMiddleware = require("./config/middleware");
 const path = require("path");
 const logger = require("morgan");
-
 const port = 8000;
 
 const db = require("./config/mongoose");
 
 const app = express();
+
+require("./config/view-helpers")(app);
 
 // setup the chat server to be used with server.io
 const chatServer = require("http").Server(app);
@@ -56,7 +57,8 @@ app.set("layout extractStyles", true);
 app.set("layout extractScripts", true);
 
 app.use("/uploads", express.static(__dirname + "/uploads"));
-app.use(express.static(path.join(__dirname, env.assets_path)));
+
+app.use(express.static(path.join(__dirname, env.asset_path)));
 app.set("view engine", "ejs");
 app.set("views", "./views");
 

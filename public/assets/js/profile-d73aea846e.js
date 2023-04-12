@@ -1,0 +1,1 @@
+{const e=()=>{let e=$(".toggle-friend-button");t(e)},t=e=>{$(e).click((t=>{t.preventDefault(),$.ajax({type:"post",url:$(e).prop("href"),success:t=>{let r;r=t.data.deleted?"Add Friend":"Remove Friend",$(e).html(`${r}`)},error:e=>{console.log("Error in completing the request: ",e.responseText)}})}))};e()}

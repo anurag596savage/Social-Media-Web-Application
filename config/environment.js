@@ -12,7 +12,7 @@ const accessLogStream = rfs.createStream("access.log", {
 
 const development = {
   name: "development",
-  asset_path: "./assets",
+  asset_path: "/assets",
   session_cookie_key: "something",
   db: "codeial_development",
   smtp: {
@@ -40,7 +40,7 @@ const development = {
 
 const production = {
   name: "production",
-  assets_path: process.env.CODEIAL_ASSETS_PATH,
+  asset_path: process.env.CODEIAL_ASSETS_PATH,
   session_cookie_key: process.env.CODEIAL_SESSION_KEY,
   db: process.env.CODEIAL_DB,
   smtp: {
